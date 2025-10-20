@@ -45,7 +45,7 @@ class ModelPersistence:
             query_params = st.query_params
             if 'provider' in query_params:
                 config = {
-                    'provider': query_params.get('provider', 'dashscope'),
+                    'provider': query_params.get('provider', 'deepseek'),
                     'category': query_params.get('category', 'openai'),
                     'model': query_params.get('model', '')
                 }
@@ -53,18 +53,18 @@ class ModelPersistence:
                 return config
         except Exception as e:
             logger.warning(f"⚠️ [Persistence] URL参数加载失败: {e}")
-        
+
         # 然后尝试从session state加载
         if self.storage_key in st.session_state:
             config = st.session_state[self.storage_key]
             logger.debug(f"📥 [Persistence] 从Session State加载配置: {config}")
             return config
-        
-        # 返回默认配置
+
+        # 返回默认配置 - 使用 DeepSeek 作为推荐默认
         default_config = {
-            'provider': 'dashscope',
+            'provider': 'deepseek',
             'category': 'openai',
-            'model': ''
+            'model': 'deepseek-chat'
         }
         logger.debug(f"📥 [Persistence] 使用默认配置: {default_config}")
         return default_config

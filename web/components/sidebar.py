@@ -178,10 +178,10 @@ def render_sidebar():
         st.markdown("""
         <div id="localStorage-reader" style="display: none;">
             <script>
-            // 从localStorage读取设置并发送给Streamlit
-            const provider = loadFromLocalStorage('llm_provider', 'dashscope');
+            // 从localStorage读取设置并发送给Streamlit - 默认使用DeepSeek
+            const provider = loadFromLocalStorage('llm_provider', 'deepseek');
             const category = loadFromLocalStorage('model_category', 'openai');
-            const model = loadFromLocalStorage('llm_model', '');
+            const model = loadFromLocalStorage('llm_model', 'deepseek-chat');
 
             // 通过自定义事件发送数据
             window.parent.postMessage({
@@ -214,14 +214,14 @@ def render_sidebar():
         # AI模型配置
         st.markdown("### 🧠 AI模型配置")
 
-        # LLM提供商选择
+        # LLM提供商选择 - DeepSeek作为默认推荐
         llm_provider = st.selectbox(
             "LLM提供商",
-            options=["dashscope", "deepseek", "google", "openai", "openrouter", "siliconflow", "custom_openai", "qianfan"],
-            index=["dashscope", "deepseek", "google", "openai", "openrouter", "siliconflow", "custom_openai", "qianfan"].index(st.session_state.llm_provider) if st.session_state.llm_provider in ["dashscope", "deepseek", "google", "openai", "openrouter", "siliconflow", "custom_openai", "qianfan"] else 0,
+            options=["deepseek", "dashscope", "google", "openai", "openrouter", "siliconflow", "custom_openai", "qianfan"],
+            index=["deepseek", "dashscope", "google", "openai", "openrouter", "siliconflow", "custom_openai", "qianfan"].index(st.session_state.llm_provider) if st.session_state.llm_provider in ["deepseek", "dashscope", "google", "openai", "openrouter", "siliconflow", "custom_openai", "qianfan"] else 0,
             format_func=lambda x: {
+                "deepseek": "🚀 DeepSeek V3 (推荐)",
                 "dashscope": "🇨🇳 阿里百炼",
-                "deepseek": "🚀 DeepSeek V3",
                 "google": "🌟 Google AI",
                 "openai": "🤖 OpenAI",
                 "openrouter": "🌐 OpenRouter",
@@ -229,7 +229,7 @@ def render_sidebar():
                 "custom_openai": "🔧 自定义OpenAI端点",
                 "qianfan": "🧠 文心一言（千帆）"
             }[x],
-            help="选择AI模型提供商",
+            help="选择AI模型提供商（推荐使用DeepSeek，性价比最高）",
             key="llm_provider_select"
         )
 

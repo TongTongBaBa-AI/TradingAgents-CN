@@ -2,8 +2,8 @@
 # 前后端分离架构 - 后端服务
 # 支持多架构: amd64, arm64
 
-# 使用 Debian Bookworm (稳定版) 而不是 Trixie (测试版)
-FROM python:3.10-slim-bookworm
+# 使用阿里云镜像加速
+FROM registry.cn-hangzhou.aliyuncs.com/library/python:3.10-slim-bookworm
 
 # 获取构建架构信息
 ARG TARGETARCH
@@ -16,43 +16,37 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 # 创建必需的目录并安装系统依赖
-# - curl: 健康检查
-# - pandoc: 从 GitHub 下载最新版本（避免 Debian 仓库问题）
-# - wkhtmltopdf: 从官方下载（用于 PDF 生成）
-# - 中文字体: 用于 PDF 中文显示
+# 使用阿里云 Debian 镜像源
 RUN mkdir -p /app/logs /app/data /app/config && \
+    # 替换为阿里云镜像源
+    sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list.d/debian.sources && \
     # 配置 apt 重试和超时
     echo 'Acquire::Retries "3";' > /etc/apt/apt.conf.d/80-retries && \
     echo 'Acquire::http::Timeout "30";' >> /etc/apt/apt.conf.d/80-retries && \
     echo 'Acquire::https::Timeout "30";' >> /etc/apt/apt.conf.d/80-retries && \
-    # 更新软件源，允许失败后继续
-    (apt-get update || apt-get update || apt-get update) && \
+    apt-get update && \
     apt-get install -y --no-install-recommends \
         ca-certificates \
         curl \
         fontconfig \
         fonts-noto-cjk \
         wget \
-        xvfb && \
-    # 根据架构设置变量
-    if [ "$TARGETARCH" = "arm64" ]; then \
-        PANDOC_ARCH="arm64"; \
-        WKHTMLTOPDF_ARCH="arm64"; \
-    else \
-        PANDOC_ARCH="amd64"; \
-        WKHTMLTOPDF_ARCH="amd64"; \
-    fi && \
-    # 下载并安装 pandoc
-    wget -q https://github.com/jgm/pandoc/releases/download/3.8.2.1/pandoc-3.8.2.1-1-${PANDOC_ARCH}.deb && \
-    dpkg -i pandoc-3.8.2.1-1-${PANDOC_ARCH}.deb && \
-    rm pandoc-3.8.2.1-1-${PANDOC_ARCH}.deb && \
-    # 下载并安装 wkhtmltopdf
-    wget -q https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox_0.12.6.1-3.bookworm_${WKHTMLTOPDF_ARCH}.deb && \
-    apt-get install -y --no-install-recommends \
-        ./wkhtmltox_0.12.6.1-3.bookworm_${WKHTMLTOPDF_ARCH}.deb && \
-    rm wkhtmltox_0.12.6.1-3.bookworm_${WKHTMLTOPDF_ARCH}.deb && \
+        xvfb \
+        # 直接从 apt 安装 pandoc（版本较旧但够用）
+        pandoc \
+        # wkhtmltopdf 依赖
+        libxrender1 \
+        libfontconfig1 \
+        libx11-6 \
+        libxext6 && \
     # 更新字体缓存
     fc-cache -fv && \
+    rm -rf /var/lib/apt/lists/*
+
+# 从国内镜像下载 wkhtmltopdf（如果 apt 版本不够用）
+# 暂时跳过，使用 apt 版本或后续手动安装
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends wkhtmltopdf || true && \
     rm -rf /var/lib/apt/lists/*
 
 # 复制pyproject.toml和README.md（pip安装需要）

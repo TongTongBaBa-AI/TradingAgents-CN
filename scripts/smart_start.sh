@@ -22,6 +22,14 @@ cd "$PROJECT_ROOT"
 
 echo "📁 项目目录: $PROJECT_ROOT"
 
+# 自动检测 docker compose 命令（兼容新旧版本）
+if docker compose version &>/dev/null; then
+    COMPOSE_CMD="docker compose"
+else
+    COMPOSE_CMD="docker-compose"
+fi
+echo "🐳 使用命令: $COMPOSE_CMD"
+
 # 清理可能导致模块冲突的空 app 目录
 # chromadb 等库有内部 app.core 模块，空的 app 目录会导致导入冲突
 if [ -d "app" ]; then
@@ -40,14 +48,14 @@ if docker images | grep -q "tradingagents-cn"; then
     # 检查代码是否有变化
     if git diff --quiet HEAD~1 HEAD -- . ':!*.md' ':!docs/' ':!scripts/' 2>/dev/null; then
         echo "📦 代码无变化，使用快速启动"
-        docker-compose up -d
+        $COMPOSE_CMD up -d
     else
         echo "🔄 检测到代码变化，重新构建"
-        docker-compose up -d --build
+        $COMPOSE_CMD up -d --build
     fi
 else
     echo "🏗️ 首次运行，构建镜像"
-    docker-compose up -d --build
+    $COMPOSE_CMD up -d --build
 fi
 
 echo ""

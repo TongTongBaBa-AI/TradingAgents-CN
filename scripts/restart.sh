@@ -14,6 +14,14 @@ cd "$PROJECT_ROOT"
 
 echo "📁 项目目录: $PROJECT_ROOT"
 
+# 自动检测 docker compose 命令（兼容新旧版本）
+if docker compose version &>/dev/null; then
+    COMPOSE_CMD="docker compose"
+else
+    COMPOSE_CMD="docker-compose"
+fi
+echo "🐳 使用命令: $COMPOSE_CMD"
+
 # 清理可能导致模块冲突的空 app 目录
 if [ -d "app" ]; then
     FILE_COUNT=$(find app -type f ! -name '.DS_Store' 2>/dev/null | wc -l)
@@ -32,15 +40,15 @@ fi
 
 # 停止服务
 echo "⏹️  停止现有服务..."
-docker-compose down
+$COMPOSE_CMD down
 
 # 启动服务
 if [ -n "$BUILD_FLAG" ]; then
     echo "🏗️  重新构建并启动服务..."
-    docker-compose up -d --build
+    $COMPOSE_CMD up -d --build
 else
     echo "🚀 启动服务..."
-    docker-compose up -d
+    $COMPOSE_CMD up -d
 fi
 
 # 等待服务启动
@@ -50,7 +58,7 @@ sleep 5
 # 检查服务状态
 echo ""
 echo "📊 服务状态:"
-docker-compose ps
+$COMPOSE_CMD ps
 
 echo ""
 echo "✅ 重启完成！"

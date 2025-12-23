@@ -2,8 +2,8 @@
 # 前后端分离架构 - 后端服务
 # 支持多架构: amd64, arm64
 
-# 使用阿里云镜像加速
-FROM registry.cn-hangzhou.aliyuncs.com/library/python:3.10-slim-bookworm
+# 使用官方镜像（通过 Docker daemon 配置镜像加速）
+FROM python:3.10-slim-bookworm
 
 # 获取构建架构信息
 ARG TARGETARCH

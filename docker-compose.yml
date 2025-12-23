@@ -21,7 +21,7 @@ services:
       # 数据目录映射
       - ./data:/app/data
     env_file:
-      - .env
+      - .env.docker
     environment:
       PYTHONUNBUFFERED: 1
       PYTHONDONTWRITEBYTECODE: 1

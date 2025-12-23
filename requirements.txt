@@ -44,6 +44,7 @@ pypandoc>=1.11  # 文档格式转换，用于导出报告功能
 python-docx>=0.8.11  # Word文档处理，用于修复文本方向
 pdfkit>=1.0.0  # PDF生成工具，需要wkhtmltopdf
 python-dotenv>=1.0.0  # 环境变量管理，用于.env文件解析
+toml>=0.10.0  # TOML配置文件解析，用于日志配置
 fastapi>=0.104.0  # FastAPI框架，用于后端API
 uvicorn[standard]>=0.24.0  # ASGI服务器，用于运行FastAPI
 pydantic>=2.0.0  # 数据验证，FastAPI依赖
